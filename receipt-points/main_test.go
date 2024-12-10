@@ -7,6 +7,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"receipt-points/handlers"
+	"receipt-points/helpers"
+	"receipt-points/models"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +26,7 @@ func TestCountAlphanumeric(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := countAlphanumeric(test.input)
+		result := helpers.CountAlphanumeric(test.input)
 		if result != test.expected {
 			t.Errorf("For input %s, expected %d, got %d", test.input, test.expected, result)
 		}
@@ -41,7 +45,7 @@ func TestIsRoundDollarAmount(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := isRoundDollarAmount(test.total)
+		result := helpers.IsRoundDollarAmount(test.total)
 		if result != test.expected {
 			t.Errorf("For input %s, expected %t, got %t", test.total, test.expected, result)
 		}
@@ -60,7 +64,7 @@ func TestIsMultipleOfQuarter(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := isMultipleOfQuarter(test.total)
+		result := helpers.IsMultipleOfQuarter(test.total)
 		if result != test.expected {
 			t.Errorf("For input %s, expected %t, got %t", test.total, test.expected, result)
 		}
@@ -79,7 +83,7 @@ func TestIsPurchaseDayOdd(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := isPurchaseDayOdd(test.purchaseDate)
+		result := helpers.IsPurchaseDayOdd(test.purchaseDate)
 		if result != test.expected {
 			t.Errorf("For input %s, expected %t, got %t", test.purchaseDate, test.expected, result)
 		}
@@ -106,7 +110,7 @@ func TestIsTimeBetween2And4(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := isTimeBetween2And4(test.purchaseTime)
+		result := helpers.IsTimeBetween2And4(test.purchaseTime)
 		if result != test.expected {
 			t.Errorf("For input %s, expected %t, got %t", test.purchaseTime, test.expected, result)
 		}
@@ -119,11 +123,11 @@ func TestProcessReceipt(t *testing.T) {
 	r := gin.Default()
 
 	// Register the routes
-	r.POST("receipts/process", processReceipt)
-	r.GET("receipts/:id/points", getPoints)
+	r.POST("receipts/process", handlers.ProcessReceipt)
+	r.GET("receipts/:id/points", handlers.GetPoints)
 
 	// Create a sample receipt
-	receipt := Receipt{
+	receipt := models.Receipt{
 		Retailer:     "Test Retailer",
 		PurchaseDate: "2024-05-01",
 		PurchaseTime: "14:30",
@@ -189,7 +193,7 @@ func TestProcessReceipt(t *testing.T) {
 	}
 
 	// Calculate the expected points
-	expectedPoints := calculatePoints(receipt)
+	expectedPoints := handlers.CalculatePoints(receipt)
 
 	// Check if the points are correct
 	if pointsResp["points"] != expectedPoints {
